@@ -7,7 +7,8 @@ import {
 import ModeToggler from "./ModeToggler";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { EllipsisVertical, ShoppingCart, UserIcon } from "lucide-react";
+import { EllipsisVertical, ShoppingCart } from "lucide-react";
+import UserButton from "./UserButton";
 
 const Menu = () => {
   const menuItems = (
@@ -19,12 +20,7 @@ const Menu = () => {
           Cart
         </Link>
       </Button>
-      <Button asChild>
-        <Link href="/sign-in">
-          <UserIcon />
-          Sign In
-        </Link>
-      </Button>
+      <UserButton />
     </>
   );
   return (
