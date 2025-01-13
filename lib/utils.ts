@@ -24,7 +24,7 @@ export const formatErr = (err: any): string => {
     const field = err.meta?.target ? (err.meta?.target[0] as string) : "Field";
     return `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
   } else {
-    return "Account don't created ";
+    return err.message;
   }
 };
 
