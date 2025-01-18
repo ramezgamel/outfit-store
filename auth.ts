@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import NextAuth from "next-auth";
+import bcrypt from "bcrypt";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./db/prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { compareSync } from "bcrypt-ts-edge";
 import type { NextAuthConfig } from "next-auth";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 export const config = {
   pages: {
@@ -30,7 +30,7 @@ export const config = {
           where: { email: credentials.email as string },
         });
         if (user && user.password) {
-          const isMatch = compareSync(
+          const isMatch = await bcrypt.compare(
             credentials.password as string,
             user.password
           );
