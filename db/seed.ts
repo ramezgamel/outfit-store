@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import sampleData from "./sample-data";
-import { hash } from "bcrypt";
+import { hash } from "@/lib/encrypt";
 
 async function main() {
   const prisma = new PrismaClient();
@@ -12,8 +12,7 @@ async function main() {
   await prisma.product.createMany({ data: sampleData.products });
   for (const user in sampleData.users) {
     sampleData.users[user].password = await hash(
-      sampleData.users[user].password,
-      10
+      sampleData.users[user].password
     );
   }
   await prisma.user.createMany({ data: sampleData.users });
