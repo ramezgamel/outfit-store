@@ -14,7 +14,7 @@ import { prisma } from "@/db/prisma";
 import { formatErr } from "../utils";
 import { ShippingAddress } from "@/types";
 import { z } from "zod";
-import bcrypt from "bcrypt";
+import { hash } from "../encrypt";
 
 export const signInWithCredentials = async (
   prevState: any,
@@ -46,7 +46,7 @@ export const signUpAction = async (prevState: any, formData: FormData) => {
       email: formData.get("email"),
     });
     const pass = user.password;
-    user.password = await bcrypt.hash(user.password, 10);
+    user.password = await hash(user.password);
     await prisma.user.create({
       data: {
         email: user.email,
