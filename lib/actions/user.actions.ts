@@ -46,6 +46,7 @@ export const signUpAction = async (prevState: any, formData: FormData) => {
       email: formData.get("email"),
     });
     const pass = user.password;
+
     user.password = await hash(user.password);
     await prisma.user.create({
       data: {

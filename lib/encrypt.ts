@@ -6,7 +6,7 @@ export const hash = async (plainPass: string) => {
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
     key,
-    { name: "HMAC", hash: { name: "SHA_256" } },
+    { name: "HMAC", hash: { name: "SHA-256" } },
     false,
     ["sign", "verify"]
   );
