@@ -1,10 +1,13 @@
 import { z } from "zod";
 import { formatNumWithDecimal } from "./utils";
+import { PAYMENT_METHODS } from "./constants";
 
-const currency = z.string().refine(
-  (value) => /^\d+(\.\d{2})?$/.test(formatNumWithDecimal(Number(value))),
-  "Price must have two decimal places"
-);
+const currency = z
+  .string()
+  .refine(
+    (value) => /^\d+(\.\d{2})?$/.test(formatNumWithDecimal(Number(value))),
+    "Price must have two decimal places"
+  );
 export const insertProductSchema = z.object({
   name: z.string().min(3, "Name must at least 3 characters"),
   slug: z.string().min(3, "Slug must at least 3 characters"),
@@ -53,4 +56,44 @@ export const insertCartSchema = z.object({
   taxPrice: currency,
   sessionCartId: z.string().min(1, "Session CartId is required"),
   userId: z.string().optional().nullable(),
+});
+
+export const shippingAddressSchema = z.object({
+  fullName: z.string().min(3, "Name must be at least 3 characters"),
+  streetAddress: z
+    .string()
+    .min(3, "Street address must be at least 3 characters"),
+  city: z.string().min(3, "city must be at least 3 characters"),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+});
+
+export const paymentMethodSchema = z
+  .object({
+    type: z.string().min(1, "Payment method is required"),
+  })
+  .refine((data) => PAYMENT_METHODS.includes(data.type), {
+    path: ["type"],
+    message: "Invalid payment method",
+  });
+
+export const insertOrderSchema = z.object({
+  userId: z.string().min(1, "User is required"),
+  shippingAddress: shippingAddressSchema,
+  paymentMethod: z.string().refine((data) => PAYMENT_METHODS.includes(data), {
+    message: "Invalid payment method",
+  }),
+  itemsPrice: currency,
+  shippingPrice: currency,
+  taxPrice: currency,
+  totalPrice: currency,
+});
+
+export const insertOrderItemSchema = z.object({
+  productId: z.string(),
+  slug: z.string(),
+  image: z.string(),
+  name: z.string(),
+  qty: z.number(),
+  price: currency,
 });

@@ -7,6 +7,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compareSync } from "bcrypt-ts-edge";
 import type { NextAuthConfig } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 export const config = {
   pages: {
     signIn: "/sign-in",
@@ -56,7 +57,7 @@ export const config = {
       }
       return session;
     },
-    async jwt({ token, user }: any) {
+    async jwt({ token, user, trigger }: any) {
       if (user) {
         token.role = user.role;
         if (user.name === "NO_NAME") {
@@ -69,9 +70,37 @@ export const config = {
           });
         }
       }
+      if (trigger === "signIn" || trigger === "signUp") {
+        const sessionCartId = (await cookies()).get("sessionCartId")?.value;
+        if (sessionCartId) {
+          const sessionCart = await prisma.cart.findFirst({
+            where: { sessionCartId },
+          });
+
+          if (sessionCart) {
+            await prisma.cart.deleteMany({ where: { userId: user.id } });
+
+            await prisma.cart.update({
+              where: { id: sessionCart.id },
+              data: { userId: user.id },
+            });
+          }
+        }
+      }
       return token;
     },
     authorized({ request, auth: any }) {
+      const protectedPaths = [
+        /\/shipping-address/,
+        /\/payment-method/,
+        /\/place-order/,
+        /\/profile/,
+        /\/user\/(.*)/,
+        /\/order\/(.*)/,
+        /\/admin/,
+      ];
+      const { pathname } = request.nextUrl;
+      if (!auth && protectedPaths.some((p) => p.test(pathname))) return false;
       if (!request.cookies.get("sessionCartId")) {
         const sessionCartId = crypto.randomUUID();
         const newRequestHeaders = request.headers;

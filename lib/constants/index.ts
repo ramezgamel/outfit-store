@@ -4,3 +4,5 @@ export const APP_DESCRIPTION =
 export const SERVER_URL =
   process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 export const LATEST_PRODUCT_LIMIT = process.env.LATEST_PRODUCT_LIMIT || 5;
+export const PAYMENT_METHODS = ["PayPal", "Cash on deliver", "Stripe"];
+export const DEFAULT_PAYMENT_METHOD = "PayPal";

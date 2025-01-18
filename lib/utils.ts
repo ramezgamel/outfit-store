@@ -37,3 +37,45 @@ export const round2 = (value: string | number) => {
     throw new Error("Value is not a number or string");
   }
 };
+
+export const formatId = (id: string) => {
+  return `...${id.substring(id.length - 6)}`;
+};
+export const formatDateTime = (dateString: Date) => {
+  const dateTimeOption: Intl.DateTimeFormatOptions = {
+    month: "short",
+    year: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  };
+  const dateOption: Intl.DateTimeFormatOptions = {
+    weekday: "short",
+    month: "short",
+    year: "numeric",
+    day: "numeric",
+  };
+  const timeOption: Intl.DateTimeFormatOptions = {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  };
+  const formattedDateTime: string = new Date(dateString).toLocaleString(
+    "en-us",
+    dateTimeOption
+  );
+  const formattedDate: string = new Date(dateString).toLocaleString(
+    "en-us",
+    dateOption
+  );
+  const formattedTime: string = new Date(dateString).toLocaleString(
+    "en-us",
+    timeOption
+  );
+  return {
+    dateTime: formattedDateTime,
+    dateOnly: formattedDate,
+    timeOnly: formattedTime,
+  };
+};
