@@ -5,8 +5,10 @@ import { auth } from "./auth";
 import { prisma } from "./db/prisma";
 import { cookies } from "next/headers";
 import { compare } from "./lib/encrypt";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
 export const nextConfig = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       credentials: {
