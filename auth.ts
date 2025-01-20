@@ -3,10 +3,11 @@ import NextAuth from "next-auth";
 // import { PrismaAdapter } from "@auth/prisma-adapter";
 // import { prisma } from "@/db/prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
-// import { compare } from "./lib/encrypt";
+import { compare } from "./lib/encrypt";
 import type { NextAuthConfig } from "next-auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { getUserByEmail } from "./lib/actions/user.actions";
 
 export const config = {
   pages: {
@@ -32,22 +33,22 @@ export const config = {
         //     email: credentials.email as string,
         //   },
         // });
+        const user = await getUserByEmail(credentials.email as string);
+        if (user && user.password) {
+          const isMatch = await compare(
+            credentials.password as string,
+            user.password
+          );
 
-        // if (user && user.password) {
-        //   const isMatch = await compare(
-        //     credentials.password as string,
-        //     user.password
-        //   );
-
-        // if (isMatch) {
-        //     return {
-        //       id: user.id,
-        //       name: user.name,
-        //       email: user.email,
-        //       role: user.role,
-        //     };
-        //   }
-        // }
+          if (isMatch) {
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            };
+          }
+        }
         return null;
       },
     }),

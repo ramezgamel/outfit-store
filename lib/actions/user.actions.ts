@@ -32,7 +32,13 @@ export const signInWithCredentials = async (
     return { success: false, msg: "Invalid email or password" };
   }
 };
-
+export const getUserByEmail = async (email: string) => {
+  return await prisma.user.findFirst({
+    where: {
+      email: email as string,
+    },
+  });
+};
 export const signUserOut = async () => {
   await signOut();
 };
