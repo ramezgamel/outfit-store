@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/db/prisma";
+// import { PrismaAdapter } from "@auth/prisma-adapter";
+// import { prisma } from "@/db/prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { compare } from "./lib/encrypt";
+// import { compare } from "./lib/encrypt";
 import type { NextAuthConfig } from "next-auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
@@ -17,7 +17,7 @@ export const config = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
-  adapter: PrismaAdapter(prisma),
+  // adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       credentials: {
