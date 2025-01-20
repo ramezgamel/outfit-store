@@ -5,7 +5,7 @@ import { prisma } from "@/db/prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "./lib/encrypt";
 import type { NextAuthConfig } from "next-auth";
-// import { cookies } from "next/headers";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const config = {
@@ -71,34 +71,44 @@ export const config = {
 
         if (user.name === "NO_NAME") {
           token.name = user.email!.split("@")[0];
-
-          // await prisma.user.update({
-          //   where: { id: user.id },
-          //   data: { name: token.name },
-          // });
         }
 
-        // if (trigger === "signIn" || trigger === "signUp") {
-        //   const cookiesObject = await cookies();
-        //   const sessionCartId = cookiesObject.get("sessionCartId")?.value;
+        if (trigger === "signIn" || trigger === "signUp") {
+          const cookiesObject = await cookies();
+          const sessionCartId = cookiesObject.get("sessionCartId")?.value;
 
-        //   if (sessionCartId) {
-        //     const sessionCart = await prisma.cart.findFirst({
-        //       where: { sessionCartId },
-        //     });
+          if (sessionCartId) {
+            // const sessionCart = await prisma.cart.findFirst({
+            //   where: { sessionCartId },
+            // });
+            const sessionCart = await fetch(`/api/cart/${sessionCartId}`).then(
+              (res) => res.json()
+            );
 
-        //     if (sessionCart) {
-        //       await prisma.cart.deleteMany({
-        //         where: { userId: user.id },
-        //       });
+            if (sessionCart) {
+              // await prisma.cart.deleteMany({
+              //   where: { userId: user.id },
+              // });
+              await fetch(`/api/cart/${user.id}`, {
+                method: "DELETE",
+              });
+              await fetch(`/api/cart/${sessionCart.id}`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                  userId: user.id,
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              });
 
-        //       await prisma.cart.update({
-        //         where: { id: sessionCart.id },
-        //         data: { userId: user.id },
-        //       });
-        //     }
-        //   }
-        // }
+              // await prisma.cart.update({
+              //   where: { id: sessionCart.id },
+              //   data: { userId: user.id },
+              // });
+            }
+          }
+        }
       }
 
       if (session?.user.name && trigger === "update") {

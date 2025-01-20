@@ -15,29 +15,6 @@ import { formatErr } from "../utils";
 import { ShippingAddress } from "@/types";
 import { z } from "zod";
 import { hash } from "../encrypt";
-import { cookies } from "next/headers";
-
-const cartModify = async () => {
-  const cookiesObject = await cookies();
-  const sessionCartId = cookiesObject.get("sessionCartId")?.value;
-  const session = await auth();
-  if (sessionCartId) {
-    const sessionCart = await prisma.cart.findFirst({
-      where: { sessionCartId },
-    });
-
-    if (sessionCart) {
-      await prisma.cart.deleteMany({
-        where: { userId: session?.user?.id },
-      });
-
-      await prisma.cart.update({
-        where: { id: sessionCart.id },
-        data: { userId: session?.user?.id },
-      });
-    }
-  }
-};
 
 export const signInWithCredentials = async (
   prevState: any,
@@ -49,7 +26,6 @@ export const signInWithCredentials = async (
       password: formData.get("password"),
     });
     await signIn("credentials", user);
-    await cartModify();
     return { success: true, msg: "Signed in successfully" };
   } catch (err) {
     if (isRedirectError(err)) throw err;
