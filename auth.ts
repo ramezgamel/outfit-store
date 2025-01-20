@@ -7,6 +7,13 @@ import { compare } from "./lib/encrypt";
 import type { NextAuthConfig } from "next-auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import {
+  deleteCartByUserId,
+  findCartById,
+  getUserByEmail,
+  updateCartById,
+  updateUserById,
+} from "./lib/generalActions";
 
 export const config = {
   pages: {
@@ -27,11 +34,12 @@ export const config = {
       async authorize(credentials) {
         if (credentials == null) return null;
 
-        const user = await prisma.user.findFirst({
-          where: {
-            email: credentials.email as string,
-          },
-        });
+        // const user = await prisma.user.findFirst({
+        //   where: {
+        //     email: credentials.email as string,
+        //   },
+        // });
+        const user = await getUserByEmail(credentials.email as string);
 
         if (user && user.password) {
           const isMatch = await compare(
@@ -72,10 +80,11 @@ export const config = {
         if (user.name === "NO_NAME") {
           token.name = user.email!.split("@")[0];
 
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { name: token.name },
-          });
+          // await prisma.user.update({
+          //   where: { id: user.id },
+          //   data: { name: token.name },
+          // });
+          await updateUserById(user.id, token.name);
         }
 
         if (trigger === "signIn" || trigger === "signUp") {
@@ -83,19 +92,22 @@ export const config = {
           const sessionCartId = cookiesObject.get("sessionCartId")?.value;
 
           if (sessionCartId) {
-            const sessionCart = await prisma.cart.findFirst({
-              where: { sessionCartId },
-            });
+            // const sessionCart = await prisma.cart.findFirst({
+            //   where: { sessionCartId },
+            // });
+            const sessionCart = await findCartById(sessionCartId);
 
             if (sessionCart) {
-              await prisma.cart.deleteMany({
-                where: { userId: user.id },
-              });
+              // await prisma.cart.deleteMany({
+              //   where: { userId: user.id },
+              // });
+              await deleteCartByUserId(user.id);
 
-              await prisma.cart.update({
-                where: { id: sessionCart.id },
-                data: { userId: user.id },
-              });
+              // await prisma.cart.update({
+              //   where: { id: sessionCart.id },
+              //   data: { userId: user.id },
+              // });
+              updateCartById(sessionCart.id, user.id);
             }
           }
         }
